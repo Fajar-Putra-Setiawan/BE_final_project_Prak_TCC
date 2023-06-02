@@ -40,7 +40,7 @@ func FlyURL() string {
 
 func main() {
 	// TODO: hapus jika sudah di deploy di fly.io
-	os.Setenv("DATABASE_URL", "postgres://postgres:fatahil123@localhost:5432/Kanban_app")
+	os.Setenv("DATABASE_URL", "postgres://postgres:password@34.101.58.12/Kanban_app")
 
 	wg := sync.WaitGroup{}
 
