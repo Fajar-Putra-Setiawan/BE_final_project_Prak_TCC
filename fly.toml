@@ -1,6 +1,6 @@
-# fly.toml file generated for fajar-final-project-be2633635 on 2022-12-18T14:47:02+07:00
+# fly.toml file generated for fajar-putra-final-project-be2633635 on 2022-12-20T12:14:00+07:00
 
-app = "fajar-final-project-be2633635"
+app = "fajar-putra-final-project-be2633635"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []

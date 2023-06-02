@@ -44,9 +44,9 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (enti
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user entity.User) (entity.User, error) {
-	err := r.db.WithContext(ctx).Create(&user)
+	err := r.db.WithContext(ctx).Create(&user).Error
 	if err != nil {
-		return entity.User{}, err.Error
+		return entity.User{}, err
 	}
 	return user, nil // TODO: replace this
 }
@@ -62,9 +62,9 @@ func (r *userRepository) UpdateUser(ctx context.Context, user entity.User) (enti
 
 func (r *userRepository) DeleteUser(ctx context.Context, id int) error {
 	result := entity.User{}
-	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&result)
+	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&result).Error
 	if err != nil {
-		return err.Error
+		return err
 	}
 	return nil // TODO: replace this
 }

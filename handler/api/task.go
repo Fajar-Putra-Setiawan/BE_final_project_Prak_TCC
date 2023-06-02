@@ -27,33 +27,31 @@ func NewTaskAPI(taskService service.TaskService) *taskAPI {
 
 func (t *taskAPI) GetTask(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value("id")
-	if userId == nil {
+
+	if userId == "" || userId == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid user id"))
 		return
 	}
 
-	userIDint, _ := strconv.Atoi(userId.(string))
-
 	taskID := r.URL.Query().Get("task_id")
+	userIDint, _ := strconv.Atoi(userId.(string))
+	taskIDint, _ := strconv.Atoi(taskID)
 	if taskID == "" {
 		task, err := t.taskService.GetTasks(r.Context(), userIDint)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err.Error())
 			json.NewEncoder(w).Encode(entity.NewErrorResponse("error internal server"))
 			return
 		}
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(task)
+		return
 	}
-
-	taskIDint, _ := strconv.Atoi(taskID)
 
 	id, err := t.taskService.GetTaskByID(r.Context(), taskIDint)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("error internal server"))
 		return
 	}
@@ -75,20 +73,22 @@ func (t *taskAPI) CreateNewTask(w http.ResponseWriter, r *http.Request) {
 
 	if task.Title == "" || task.Description == "" || task.CategoryID == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid task request"))
 		return
 	}
 
-	userId := r.Context().Value("id")
-	if userId == nil {
+	userId := r.Context().Value("id").(string)
+	if userId == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid user id"))
 		return
 	}
 
+	userIdint, _ := strconv.Atoi(userId)
+
 	var StoreTask = entity.Task{
+		UserID:      userIdint,
 		ID:          task.ID,
 		Title:       task.Title,
 		Description: task.Description,
@@ -105,8 +105,8 @@ func (t *taskAPI) CreateNewTask(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"user_id": id,
-		"task_id": task.ID,
+		"user_id": id.UserID,
+		"task_id": id.ID,
 		"message": "success create new task",
 	})
 
@@ -148,10 +148,10 @@ func (t *taskAPI) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := r.Context().Value("user_id")
-	if userId == nil {
+	userId := r.Context().Value("id")
+	userIdint, _ := strconv.Atoi(userId.(string))
+	if userId == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid user id"))
 		return
 	}
@@ -161,6 +161,7 @@ func (t *taskAPI) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		Title:       task.Title,
 		Description: task.Description,
 		CategoryID:  task.CategoryID,
+		UserID:      userIdint,
 	}
 
 	id, err := t.taskService.UpdateTask(r.Context(), &Updatetask)
@@ -173,7 +174,7 @@ func (t *taskAPI) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"user_id": id,
+		"user_id": id.ID,
 		"task_id": task.ID,
 		"message": "success update task",
 	})

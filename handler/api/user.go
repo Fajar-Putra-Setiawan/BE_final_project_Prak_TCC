@@ -67,7 +67,7 @@ func (u *userAPI) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"user_id": userService.ID,
+		"user_id": id,
 		"message": "login success",
 	})
 

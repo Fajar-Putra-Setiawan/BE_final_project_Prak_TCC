@@ -26,25 +26,26 @@ func NewTaskRepository(db *gorm.DB) TaskRepository {
 
 func (r *taskRepository) GetTasks(ctx context.Context, id int) ([]entity.Task, error) {
 	result := []entity.Task{}
-	err := r.db.Where("user_id = ?", id).Find(&result).Error
+	err := r.db.WithContext(ctx).Where("user_id = ?", id).Find(&result).Error
 	if err != nil {
-		return nil, err
+		return []entity.Task{}, err
 	}
 
 	return result, nil // TODO: replace this
 }
 
 func (r *taskRepository) StoreTask(ctx context.Context, task *entity.Task) (taskId int, err error) {
-	error := r.db.Create(&task)
+	error := r.db.WithContext(ctx).Create(&task)
 	if error != nil {
 		return 0, nil
 	}
+
 	return task.ID, nil // TODO: replace this
 }
 
 func (r *taskRepository) GetTaskByID(ctx context.Context, id int) (entity.Task, error) {
 	result := entity.Task{}
-	err := r.db.Where("id = ?", id).Find(&result).Error
+	err := r.db.WithContext(ctx).Where("id = ?", id).Find(&result).Error
 	if err != nil {
 		return entity.Task{}, err
 	}
@@ -54,7 +55,7 @@ func (r *taskRepository) GetTaskByID(ctx context.Context, id int) (entity.Task, 
 
 func (r *taskRepository) GetTasksByCategoryID(ctx context.Context, catId int) ([]entity.Task, error) {
 	result := []entity.Task{}
-	err := r.db.Where("category_id = ?", catId).Find(&result).Error
+	err := r.db.WithContext(ctx).Where("category_id = ?", catId).Find(&result).Error
 	if err != nil {
 		return []entity.Task{}, err
 	}
@@ -64,7 +65,7 @@ func (r *taskRepository) GetTasksByCategoryID(ctx context.Context, catId int) ([
 
 func (r *taskRepository) UpdateTask(ctx context.Context, task *entity.Task) error {
 	result := entity.Task{}
-	err := r.db.Model(&result).Where("id = ?", task.ID).Updates(&result).Error
+	err := r.db.WithContext(ctx).Model(&result).Where("id = ?", task.ID).Updates(&result).Error
 	if err != nil {
 		return err
 	}
@@ -73,9 +74,9 @@ func (r *taskRepository) UpdateTask(ctx context.Context, task *entity.Task) erro
 
 func (r *taskRepository) DeleteTask(ctx context.Context, id int) error {
 	result := entity.Task{}
-	err := r.db.Where("id = ?", id).Delete(&result)
+	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&result).Error
 	if err != nil {
-		return err.Error
+		return err
 	}
 	return nil // TODO: replace this
 }

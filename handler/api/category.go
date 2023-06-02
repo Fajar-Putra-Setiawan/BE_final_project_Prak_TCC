@@ -61,21 +61,22 @@ func (c *categoryAPI) CreateNewCategory(w http.ResponseWriter, r *http.Request) 
 
 	if category.Type == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid category request"))
 		return
 	}
 
-	userId := r.Context().Value("id")
-	if userId == nil {
+	userId := r.Context().Value("id").(string)
+	if userId == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println(err.Error())
 		json.NewEncoder(w).Encode(entity.NewErrorResponse("invalid user id"))
 		return
 	}
 
+	userIdint, _ := strconv.Atoi(userId)
+
 	var StoreCategory = entity.Category{
-		Type: category.Type,
+		UserID: userIdint,
+		Type:   category.Type,
 	}
 
 	id, err := c.categoryService.StoreCategory(r.Context(), &StoreCategory)

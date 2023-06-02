@@ -44,9 +44,9 @@ func (r *categoryRepository) StoreCategory(ctx context.Context, category *entity
 }
 
 func (r *categoryRepository) StoreManyCategory(ctx context.Context, categories []entity.Category) error {
-	err := r.db.WithContext(ctx).Create(&categories)
+	err := r.db.WithContext(ctx).Create(&categories).Error
 	if err != nil {
-		return err.Error
+		return err
 	}
 
 	return nil // TODO: replace this
@@ -73,9 +73,9 @@ func (r *categoryRepository) UpdateCategory(ctx context.Context, category *entit
 
 func (r *categoryRepository) DeleteCategory(ctx context.Context, id int) error {
 	result := entity.Category{}
-	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&result)
+	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&result).Error
 	if err != nil {
-		return err.Error
+		return err
 	}
 	return nil // TODO: replace this
 }
